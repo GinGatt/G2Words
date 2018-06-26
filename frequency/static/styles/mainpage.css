@@ -1,0 +1,58 @@
+.titleWrapper {
+    padding-top: 1.2em;
+    padding-bottom: 1.2em;
+}
+
+.title {
+    font-family: Fjord One, serif;
+    font-weight: 700;
+    padding-left: calc(32px + 1em);
+}
+
+.center {
+    padding: 0;
+    text-align: center;
+}
+
+.left {
+    padding-left: calc(32px + 2em);
+}
+
+.expand {
+    width: 100%;
+}
+
+.uploaded {
+    background-color: lightgray;
+    color: black;
+}
+
+.dragWrapper {
+    padding-top: 1.5em;
+    padding-bottom: 4em;
+}
+
+.buttonWrapper {
+   text-align: center;
+}
+
+.custom-file-upload {
+    display: block;
+    height: 100%;
+    width: 116px;
+    border-radius: 4px;
+    z-index: 0;
+    overflow: hidden;
+    cursor: pointer;
+    color: #fff;
+    text-align: center;
+    line-height: 36px;
+    font-family: "Roboto","Helvetica","Arial",sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0;
+    background-color: #3f51b5;
+    align-self: center;
+    margin: auto;
+}

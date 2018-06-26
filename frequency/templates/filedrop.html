@@ -5,13 +5,54 @@
   <title>Word Frequency</title>
   <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.2/material.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link href="https://fonts.googleapis.com/css?family=Fjord+One" rel="stylesheet">
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/mainpage.css') }}">
 </head>
-<body>
-  <h1>Frequency and Context of Words</h1>
-  <h4>Discover The Context and Frequency of Your Documents' Most Relevant Words</h4>
-  <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
-    Upload Files
-  </button>
+<body class="mdl-demo mdl-color--grey-100 mdl-color-text--grey-700 mdl-base">
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header mdl-layout__header--scroll mdl-color--primary">
+      <div class="mdl-color--primary-light titleWrapper">
+        <h1 class="title">Word.</h1>
+      </div>
+      <div class="mdl-color--primary-dark">
+        <h5 class="left">Discover The Context and Frequency of Your Documents' Most Relevant Words</h5>
+      </div>
+    </header>
+    <main class="mdl-layout__content">
+      <section class="section--center  mdl-grid mdl-shadow--2dp">
+        <div class="mdl-card mdl-cell mdl-cell--4-col-desktop uploaded">
+          <div class="mdl-card__supporting-text">
+            <h5 class="center">Files Already Uploaded</h5>
+            <div>
+              <ul>
+                {% for file in files %}
+                <li>
+                  {{ file }}
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="mdl-card mdl-cell mdl-cell--8-col-desktop">
+          <div class="mdl-card__supporting-text expand">
+            <form method=post enctype=multipart/form-data>
+              <input id="file-upload" type="file" name="file"/>
+              <div class="dragWrapper">
+                <h4 class="center">Or Drag and Drop Your Text Files Here</h4>
+              </div>
+              <div class="buttonWrapper">
+                <button type=submit class="mdl-cell--3-col-desktop mdl-cell--middle mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
+                  Upload
+                </button>
+              </div>
+            </form>
+          </div>
+          <div class="mdl-card__supporting-text"></div>
+        </div>
+      </section>
+    </main>
+  </div>
   <script src="https://storage.googleapis.com/code.getmdl.io/1.0.2/material.min.js"></script>
 </body>
 </html>
