@@ -10,11 +10,11 @@ have to analyze all 7 files. Instead it should only have to analyze the 2 new fi
 With this goal in mind, we store the master_words_dict in Redis upon run completion
 and rehydrate upon run start. Since it is imperative there is ONLY one dict of this type,
 efforts have been made to make it a singleton. It must be initialized outside of a thread.
-Furthermore, it is imperative that an instance of this singleton can be updated
-in a thread-safe fashion, hence the RLock. The threads can call the methods of the singleton
 """
 
 import threading
+
+# TODO determine if Threading or parallel processing of each file or sentence is needed...
 
 
 def singleton(cls, *args, **kw):
@@ -44,41 +44,69 @@ class WordTree(object):
         :param dict words_dict: The dict from cache or empty dict
         """
         self.words_dict = words_dict
-        self.lock = threading.RLock()
+        # self.lock = threading.RLock()
 
+    # TODO written explicitly to highlight the equivalency of the context manager in the following function
     def get_word(self, word):
-        self.lock.acquire()
-        try:
-            return self.words_dict.get(word)
-        finally:
-            self.lock.release()
+        """
+        Fetches value of word if word exists, else returns undefined;
+        A direct dict[k] call could result in KeyError, hence .get() choice
+        :param str word: The word serving as the key
+        :return value as a dict or undefined
+        """
+        # with self.lock.acquire():
+        return self.words_dict.get(word)
 
-    def set_word(self, word, value):
-        self.lock.acquire()
-        try:
-            self.words_dict[word] = value
-        finally:
-            self.lock.release()
+    def set_key(self, key, value):
+        """
+        Set value for the given word serving as a key
+        :param str key: The key to set
+        :param _ value: The value of the key
+        :return None
+        """
+        # with self.lock.acquire():
+        self.words_dict[key] = value
 
     def increment_count_known_word(self, word):
-        self.lock.acquire()
-        try:
-            self.words_dict[word][self.count] += self.words_dict[word][self.count]
-        finally:
-            self.lock.release()
+        """
+        Increment count of a known word
+        ONLY USE WITH WORDS ALREADY IN DICT, ELSE KEY_ERROR
+        :param str word: The word serving as the key
+        :return None
+        """
+        # with self.lock.acquire():
+        self.words_dict[word][self.count] += self.words_dict[word][self.count]
 
     def add_sentence_known_word(self, word, sent_uuid):
-        self.lock.acquire()
-        try:
-            if sent_uuid not in self.words_dict[word][self.sentences]:
-                self.words_dict[word][self.sentences].append(sent_uuid)
-        finally:
-            self.lock.release()
+        """
+        Add additional sentence uuid of existing word to its sentence array
+        ONLY USE WITH WORDS ALREADY IN DICT, ELSE KEY_ERROR
+        :param str word: The word serving as the key
+        :param  sent_uuid: The uuid serving as a reference to the sentence in which the word is located
+        :return None
+        """
+        # with self.lock.acquire():
+        if sent_uuid not in self.words_dict[word][self.sentences]:
+            self.words_dict[word][self.sentences].append(sent_uuid)
 
     def add_file_known_word(self, word, filename):
-        self.lock.acquire()
-        try:
-            if filename not in self.words_dict[word][self.files]:
-                self.words_dict[word][self.files].append(filename)
-        finally:
-            self.lock.release()
+        """
+        Add additional filename of existing word to its filename array
+        ONLY USE WITH WORDS ALREADY IN DICT, ELSE KEY_ERROR
+        :param str word: The word serving as the key
+        :param str filename: The filename from which word originated
+        :return None
+        """
+        # with self.lock.acquire():
+        if filename not in self.words_dict[word][self.files]:
+            self.words_dict[word][self.files].append(filename)
+
+    def set_first_instance_word(self, word, sentence_uuid, filename):
+        """
+        Set and establish the future structure for the new word key
+        :param str word: The word serving as the key
+        :param  sentence_uuid: The uuid serving as a reference to the sentence in which the word is located
+        :param str filename: The filename from which word originated
+        :return None
+        """
+        self.set_key(word, {self.count: 1, self.sentences: [sentence_uuid], self.files: [filename]})
