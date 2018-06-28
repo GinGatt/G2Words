@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="WordFrequencyAndLocationApp">
 <head>
   <meta charset="UTF-8">
   <title>Word Frequency</title>
@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css?family=Fjord+One" rel="stylesheet">
   <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/mainpage.css') }}">
 </head>
-<body class="mdl-demo mdl-color--grey-100 mdl-color-text--grey-700 mdl-base">
+<body ng-controller="WordFrequencyAndLocationController" class="mdl-demo mdl-color--grey-100 mdl-color-text--grey-700 mdl-base">
   <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
     <header class="mdl-layout__header mdl-layout__header--scroll mdl-color--primary">
       <div class="mdl-color--primary-light titleWrapper">
@@ -34,25 +34,50 @@
             </div>
           </div>
         </div>
-        <div class="mdl-card mdl-cell mdl-cell--8-col-desktop">
+        <div class="mdl-card mdl-cell mdl-cell--4-col-desktop">
           <div class="mdl-card__supporting-text expand">
-            <form method=post enctype=multipart/form-data>
-              <input id="file-upload" type="file" name="file"/>
+            <form method=post enctype=multipart/form-data action='{{url_for("file_upload")}}'>
+              <input id="file_upload" type="file" name="file"/>
               <div class="dragWrapper">
-                <h4 class="center">Or Drag and Drop Your Text Files Here</h4>
+                <!--<h5 class="center">(Drag And Drop Coming Soon)</h5>-->
               </div>
               <div class="buttonWrapper">
-                <button type=submit class="mdl-cell--3-col-desktop mdl-cell--middle mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
-                  Upload
+                <button
+                type="submit"
+                class="middle mdl-cell--6-col-desktop mdl-cell--middle mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">
+                Upload
                 </button>
               </div>
             </form>
           </div>
           <div class="mdl-card__supporting-text"></div>
         </div>
+        <div class="mdl-card mdl-cell mdl-cell--4-col-desktop">
+          <form role="form" ng-submit="getResults()">
+            <div class="mdl-card__supporting-text">
+              <h5 class="center">Calculate Word Frequencies with Uploaded Data</h5>
+            </div>
+            <div class="buttonWrapper">
+              {% raw %}
+              <button
+                type="submit"
+                class="mdl-cell--6-col-desktop mdl-cell--middle mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored middle"
+                ng-disabled="loading"
+              >
+                CALCULATE
+              </button>
+              {% endraw %}
+            </div>
+          </form>
+        </div>
+      </section>
+      <section class="section--center  mdl-grid mdl-shadow--2dp">
+
       </section>
     </main>
   </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.2/angular.min.js"></script>
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
   <script src="https://storage.googleapis.com/code.getmdl.io/1.0.2/material.min.js"></script>
 </body>
 </html>

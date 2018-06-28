@@ -1,3 +1,6 @@
+# TODO: It is noted that a library, such as SpaCy or nltk would be invaluable here and render helpers obsolete
+# TODO cont ... However, I was uncomfortable with a library doing all my work in a coding exercise..
+
 import re
 
 caps = "([A-Z])"
@@ -10,6 +13,11 @@ digits = "([0-9])"
 
 
 def split_into_sentences(text):
+    """
+    Given a block of text, split into an list of sentences using crude rules to determine sentence end
+    :param str text: The full text body of the file
+    :return list : List of all the sentences within a file
+    """
     text = " " + text + "  "
     text = text.replace("\n", " ")
     text = re.sub(prefixes, "\\1<prd>", text)
@@ -38,3 +46,18 @@ def split_into_sentences(text):
     sentences = sentences[:-1]
     sentences = [s.strip() for s in sentences]
     return sentences
+
+
+def split_into_words(sentence):
+    """
+    Given a raw sentence, split into a list of words using crude rules to determine a period's appropriateness
+    :param str sentence: The original sentence string before removal of stop words etc
+    :return list : List of all the words in a given sentence
+    """
+    word_array = sentence.split()
+    word_array[-1] = re.sub(suffixes + "[.]", "\\1..", word_array[-1])
+    word_array[-1] = re.sub(acronyms, "\\1.", word_array[-1])
+    if "Ph.D" in word_array[-1]: word_array[-1] = word_array[-1].replace("Ph.D.", "Ph.D..")
+    if "..." in word_array[-1]: word_array[-1] = word_array[-1].replace("...", "....")
+    word_array[-1] = word_array[-1][:-1]
+    return word_array

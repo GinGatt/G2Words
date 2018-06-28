@@ -12,8 +12,8 @@ and rehydrate upon run start. Since it is imperative there is ONLY one dict of t
 efforts have been made to make it a singleton. It must be initialized outside of a thread.
 """
 
+from app import app, redis_conn
 import threading
-
 # TODO determine if Threading or parallel processing of each file or sentence is needed...
 
 
@@ -38,13 +38,26 @@ class WordTree(object):
     sentences = "sentences"
     files = "files"
 
-    def __init__(self, words_dict):
+    def __init__(self):
         """
         Initializes WordTree Singleton Class
-        :param dict words_dict: The dict from cache or empty dict
         """
-        self.words_dict = words_dict
+        self.words_dict = self.pull_cache()
         # self.lock = threading.RLock()
+
+    @staticmethod
+    def pull_cache():
+        """
+        Pull existing tree held in Redis, else return {}
+        :return dict
+        """
+        word_tree_from_cache = redis_conn.hgetall(app.config['CACHE_KEY'])
+        print("previous cache", word_tree_from_cache)
+        if word_tree_from_cache:
+            word_tree_from_cache = word_tree_from_cache['word_tree']
+        else:
+            word_tree_from_cache = {}
+        return word_tree_from_cache
 
     # TODO written explicitly to highlight the equivalency of the context manager in the following function
     def get_word(self, word):
@@ -57,16 +70,6 @@ class WordTree(object):
         # with self.lock.acquire():
         return self.words_dict.get(word)
 
-    def set_key(self, key, value):
-        """
-        Set value for the given word serving as a key
-        :param str key: The key to set
-        :param _ value: The value of the key
-        :return None
-        """
-        # with self.lock.acquire():
-        self.words_dict[key] = value
-
     def increment_count_known_word(self, word):
         """
         Increment count of a known word
@@ -77,17 +80,17 @@ class WordTree(object):
         # with self.lock.acquire():
         self.words_dict[word][self.count] += self.words_dict[word][self.count]
 
-    def add_sentence_known_word(self, word, sent_uuid):
+    def add_sentence_known_word(self, word, sentence):
         """
         Add additional sentence uuid of existing word to its sentence array
         ONLY USE WITH WORDS ALREADY IN DICT, ELSE KEY_ERROR
         :param str word: The word serving as the key
-        :param  sent_uuid: The uuid serving as a reference to the sentence in which the word is located
+        :param str sentence: The sentence in which the word is located
         :return None
         """
         # with self.lock.acquire():
-        if sent_uuid not in self.words_dict[word][self.sentences]:
-            self.words_dict[word][self.sentences].append(sent_uuid)
+        if sentence not in self.words_dict[word][self.sentences]:
+            self.words_dict[word][self.sentences].append(sentence)
 
     def add_file_known_word(self, word, filename):
         """
@@ -101,12 +104,12 @@ class WordTree(object):
         if filename not in self.words_dict[word][self.files]:
             self.words_dict[word][self.files].append(filename)
 
-    def set_first_instance_word(self, word, sentence_uuid, filename):
+    def set_first_instance_word(self, word, sentence, filename):
         """
         Set and establish the future structure for the new word key
         :param str word: The word serving as the key
-        :param  sentence_uuid: The uuid serving as a reference to the sentence in which the word is located
+        :param str sentence: The sentence in which the word is located
         :param str filename: The filename from which word originated
         :return None
         """
-        self.set_key(word, {self.count: 1, self.sentences: [sentence_uuid], self.files: [filename]})
+        self.words_dict[word] = {self.count: 1, self.sentences: [sentence], self.files: [filename]}
