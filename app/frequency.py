@@ -1,14 +1,9 @@
 import os
+import json
 from app import app
-from .helpers import split_into_sentences
+from .helpers import split_into_sentences, split_into_words
 from .word_tree import WordTree
-from .worker import redis_conn
-
-"""
-TODO Store only references to the sentences within the value of the word
-sent_uuid = uuid.uuid4()
-self.session_word_tree.set_key(sent_uuid, sentence)
-"""
+from app import redis_conn
 
 
 class Frequency:
@@ -30,10 +25,12 @@ class Frequency:
         file_set = self._chk_folder(folder_path)
         for file in file_set:
             self._process_file(file)
-        # save after processing all files
-        print('jasdhajkshdajk', app.config['CACHE_KEY'])
-        redis_conn.hset(app.config['CACHE_KEY'], 'word_tree', self.session_word_tree)
-        return self.session_word_tree
+        # save the whole tree for future after processing all files - TODO error handling in case connectivity issues
+        redis_conn.hset(app.config['CACHE_NAME'], app.config['CACHE_KEY'], json.dumps(self.session_word_tree))
+        # clear the local local cache since these have already been processed
+        self.word_tree.clear_local_cache()
+        sorted_result = sorted(self.session_word_tree.items(), key=(lambda x: x[1]['count']), reverse=True)
+        return sorted_result
 
     def _process_file(self, file, filter_stop_words=True):
         """
@@ -42,11 +39,11 @@ class Frequency:
         :param bool filter_stop_words: Filter stop words would remove the most common words, leaving more relevant words
         """
         with open(file) as f:
-            print('we are print printing... ')
             read_data = f.read()
         sentences_array = split_into_sentences(read_data)
         for sentence in sentences_array:
-            self._process_sentence(sentence, file, filter_stop_words)
+            short_filename = os.path.basename(file)
+            self._process_sentence(sentence, short_filename, filter_stop_words)
         return
 
     def _process_sentence(self, sentence, filename, filter_stop_words):
@@ -57,8 +54,9 @@ class Frequency:
         :param bool filter_stop_words: Filter stop words would remove the most common words, leaving more relevant words
         """
         # TODO filter stop words here
-        sentence_array = split_into_sentences(sentence)
+        sentence_array = split_into_words(sentence)
         for word in sentence_array:
+            word = word.lower()
             if self.word_tree.get_word(word):
                 self.word_tree.increment_count_known_word(word)
                 self.word_tree.add_sentence_known_word(word, sentence)

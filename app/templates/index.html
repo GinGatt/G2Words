@@ -36,7 +36,7 @@
         </div>
         <div class="mdl-card mdl-cell mdl-cell--4-col-desktop">
           <div class="mdl-card__supporting-text expand">
-            <form method=post enctype=multipart/form-data action='{{url_for("file_upload")}}'>
+            <form method=post enctype=multipart/form-data action='{{url_for("index")}}'>
               <input id="file_upload" type="file" name="file"/>
               <div class="dragWrapper">
                 <!--<h5 class="center">(Drag And Drop Coming Soon)</h5>-->
@@ -62,9 +62,8 @@
               <button
                 type="submit"
                 class="mdl-cell--6-col-desktop mdl-cell--middle mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored middle"
-                ng-disabled="loading"
               >
-                CALCULATE
+                {{calculateButtonText}}
               </button>
               {% endraw %}
             </div>
@@ -72,7 +71,32 @@
         </div>
       </section>
       <section class="section--center  mdl-grid mdl-shadow--2dp">
-
+        <div class="wordTableWrapper">
+          <table class="wordTable" align="center">
+            <thead>
+              <tr>
+                <th>Word</th>
+                <th>Count</th>
+                <th>Documents</th>
+                <th>Sentences Containing the Word</th>
+              <tr>
+            </thead>
+            <tbody>
+              {% raw %}
+                <tr ng-repeat="word in topWords">
+                  <td> {{ word[0] }} </td>
+                  <td> {{ word[1]['count']}} </td>
+                  <td>
+                    {{ getFileTableText(word[1]['files']) }}
+                  </td>
+                  <td class="sentenceTableCell">
+                    <span ng-bind-html="bold(getSentenceTableText(word[1]['sentences']), word[0])"></span>
+                  </td>
+                </tr>
+              {% endraw %}
+            </tbody>
+          </table>
+        </div>
       </section>
     </main>
   </div>

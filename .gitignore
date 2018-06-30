@@ -2,4 +2,4 @@
 .idea/
 *.iml
 venv/
-.rdb
+dump.rdb

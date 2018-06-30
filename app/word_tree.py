@@ -13,6 +13,7 @@ efforts have been made to make it a singleton. It must be initialized outside of
 """
 
 from app import app, redis_conn
+import json
 import threading
 # TODO determine if Threading or parallel processing of each file or sentence is needed...
 
@@ -51,13 +52,15 @@ class WordTree(object):
         Pull existing tree held in Redis, else return {}
         :return dict
         """
-        word_tree_from_cache = redis_conn.hgetall(app.config['CACHE_KEY'])
-        print("previous cache", word_tree_from_cache)
+        word_tree_from_cache = redis_conn.hgetall(app.config['CACHE_NAME'])
         if word_tree_from_cache:
-            word_tree_from_cache = word_tree_from_cache['word_tree']
-        else:
+            word_tree_from_cache = json.loads(word_tree_from_cache).get(app.config['CACHE_KEY'])
+        if not word_tree_from_cache:
             word_tree_from_cache = {}
         return word_tree_from_cache
+
+    def clear_local_cache(self):
+        self.words_dict = {}
 
     # TODO written explicitly to highlight the equivalency of the context manager in the following function
     def get_word(self, word):
@@ -78,7 +81,7 @@ class WordTree(object):
         :return None
         """
         # with self.lock.acquire():
-        self.words_dict[word][self.count] += self.words_dict[word][self.count]
+        self.words_dict[word][self.count] += 1
 
     def add_sentence_known_word(self, word, sentence):
         """

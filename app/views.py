@@ -7,10 +7,7 @@ identification of dataset, and display of word frequency and location results
 import os
 from flask import render_template, flash, request, redirect, jsonify
 from werkzeug.utils import secure_filename
-import json
-# from .worker import redis_conn
-from rq.job import Job
-from app import app, q
+from app import app
 from .frequency import Frequency
 
 
@@ -50,30 +47,25 @@ def list_filenames():
     return sorted(files, key=get_file_access_time)
 
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    files = list_filenames()
-    return render_template('index.html', files=files)
-
-
-@app.route('/upload', methods=['POST'])
-def file_upload():
-    if 'file' not in request.files:
-        flash('Not an acceptable file')
-        return redirect(request.url)
-    elif request.files['file'].filename == '':
-        flash('No selected file')
-        return redirect(request.url)
-    else:
-        file = request.files['file']
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(save_path)
-            # open and close to update the access time for sorting.
-            with open(save_path, "r") as f:
-                pass
-            flash('File Uploaded Successfully')
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('Not an acceptable file')
+            return redirect(request.url)
+        elif request.files['file'].filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        else:
+            file = request.files['file']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(save_path)
+                # open and close to update the access time for sorting.
+                with open(save_path, 'r') as f:
+                    pass
+                flash('File Uploaded Successfully')
     files = list_filenames()
     return render_template('index.html', files=files)
 
@@ -81,21 +73,5 @@ def file_upload():
 @app.route('/start', methods=['POST'])
 def get_frequency_and_location():
     frequency_instance = Frequency()
-    # start job that will be run in the background and recognized by the worker
-    # job = q.enqueue_call(func=frequency_instance.calculate, args=(app.config['UPLOAD_FOLDER'],), result_ttl=5000)
-    my_data = frequency_instance.calculate(app.config['UPLOAD_FOLDER'])
-    print(my_data)
-    return render_template('blank.html', output=my_data)
-
-
-@app.route("/results/<job_key>", methods=['GET'])
-def get_results(job_key):
-    # job = Job.fetch(job_key, connection=redis_conn)
-    converted_job_data = job.data.decode('ascii')
-    print('type', type(converted_job_data))
-    # if job.is_finished:
-    sorted_result = sorted(converted_job_data.items(), key=(lambda x: x[1]['count']), reverse=True)[:20]
-    print(sorted_result)
-    return render_template('blank.html', output='abc')
-    # else:
-    #     return render_template('blank.html', output='def'), 204
+    my_data = frequency_instance.calculate(app.config['UPLOAD_FOLDER'])[:15]
+    return jsonify(my_data)
