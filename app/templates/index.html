@@ -57,6 +57,19 @@
             <div class="mdl-card__supporting-text">
               <h5 class="center">Calculate Word Frequencies with Uploaded Data</h5>
             </div>
+            <div class="mdl-card__supporting-text">
+              <label class="mdl-checkbox mdl-js-checkbox" for="stopWordsCheckbox">
+                <input
+                  type="checkbox"
+                  name="stopWordsCheckbox"
+                  id="stopWordsCheckbox"
+                  class="mdl-checkbox__input"
+                  ng-value="true"
+                  ng-model="stopWordsCheckbox"
+                >
+                <span class="mdl-checkbox__label">Filter Stop Words</span>
+              </label>
+            </div>
             <div class="buttonWrapper">
               {% raw %}
               <button
@@ -89,8 +102,10 @@
                   <td>
                     {{ getFileTableText(word[1]['files']) }}
                   </td>
-                  <td class="sentenceTableCell">
-                    <span ng-bind-html="bold(getSentenceTableText(word[1]['sentences']), word[0])"></span>
+                  <td class="sentenceCell">
+                    <div class="sentenceTableCellWrapper">
+                      <span ng-bind-html="bold(getSentenceTableText(word[1]['sentences']), word[0])"></span>
+                    </div>
                   </td>
                 </tr>
               {% endraw %}

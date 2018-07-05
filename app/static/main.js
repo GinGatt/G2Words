@@ -8,7 +8,7 @@
 
         $scope.getResults = function() {
           $scope.calculateButtonText = 'Loading...';
-          $http.post('/start', {}).then(function(results) {
+          $http({method: 'POST', url:'/start', data:{'checked': $scope.stopWordsCheckbox}}).then(function(results) {
             $scope.calculateButtonText = 'Calculate';
             $scope.topWords = results.data;
           }).catch(function(error) {
@@ -18,12 +18,12 @@
 
         var fileTableText = '{0}';
         $scope.getFileTableText = function(fileArray){
-          return fileTableText.replace('{0}', fileArray.toString()).replace(/,/g, ", ");
+          return fileTableText.replace('{0}', fileArray.toString()).replace(/,/g, ", \n");
         };
 
         var sentenceTableText = '{0}';
         $scope.getSentenceTableText = function(sentenceArray){
-          return sentenceTableText.replace('{0}', sentenceArray.toString()).replace(/,/g, ", ");
+          return sentenceTableText.replace('{0}', sentenceArray.toString()).replace(/,/g, ", \n\n");
         };
 
         $scope.bold = function(textToSearch, searchTerm) {

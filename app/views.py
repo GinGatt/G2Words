@@ -73,5 +73,6 @@ def index():
 @app.route('/start', methods=['POST'])
 def get_frequency_and_location():
     frequency_instance = Frequency()
-    my_data = frequency_instance.calculate(app.config['UPLOAD_FOLDER'])[:15]
+    filter_checked = request.get_json().get('checked')
+    my_data = frequency_instance.calculate(app.config['UPLOAD_FOLDER'], filter_checked)[:15]
     return jsonify(my_data)

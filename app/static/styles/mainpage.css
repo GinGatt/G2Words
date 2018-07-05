@@ -33,7 +33,8 @@
 }
 
 .buttonWrapper {
-   text-align: center;
+    text-align: center;
+    padding-top: 1.5em;
 }
 
 .custom-file-upload {
@@ -97,4 +98,15 @@ tr:nth-child(even) td {
 
 tr:nth-child(odd) td {
     background-color: rgb(245,245,245);
+}
+
+.sentenceCell {
+    float: left;
+    text-align: left
+}
+
+.sentenceTableCellWrapper {
+    height: 300px;
+    overflow: scroll;
+
 }
