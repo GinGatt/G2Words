@@ -62,7 +62,7 @@ class WordTree(object):
     def clear_local_cache(self):
         self.words_dict = {}
 
-    # TODO written explicitly to highlight the equivalency of the context manager in the following function
+    # TODO written to explicitly to highlight the equivalency of the context manager in the following function
     def get_word(self, word):
         """
         Fetches value of word if word exists, else returns undefined;

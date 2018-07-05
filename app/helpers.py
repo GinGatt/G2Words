@@ -54,6 +54,11 @@ def split_into_words(sentence):
     :param str sentence: The original sentence string before removal of stop words etc
     :return list : List of all the words in a given sentence
     """
+    # remove - lest they be processed as words
+    sentence = sentence.replace(" - ", " ")
+    sentence = sentence.replace("-", " ")
+
+    # split remaining sentence into an array of words and remove trailing period
     word_array = sentence.split()
     word_array[-1] = re.sub(suffixes + "[.]", "\\1..", word_array[-1])
     word_array[-1] = re.sub(acronyms, "\\1.", word_array[-1])

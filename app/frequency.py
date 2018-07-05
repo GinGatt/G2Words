@@ -3,6 +3,7 @@ import json
 from app import app
 from .helpers import split_into_sentences, split_into_words
 from .word_tree import WordTree
+from .stop_words import STOP_WORDS
 from app import redis_conn
 
 
@@ -17,14 +18,15 @@ class Frequency:
         self.word_tree = WordTree()
         self.session_word_tree = self.word_tree.words_dict
 
-    def calculate(self, folder_path):
+    def calculate(self, folder_path, filter_stop_words=True):
         """
         Only public method which should be called during the tabulation of the frequency and location of words
         :param str folder_path: The path of the folder which stores the .txts uploaded from the website
+        :param bool filter_stop_words: Filter stop words would remove the most common words, leaving more relevant words
         """
         file_set = self._chk_folder(folder_path)
         for file in file_set:
-            self._process_file(file)
+            self._process_file(file, filter_stop_words)
         # save the whole tree for future after processing all files - TODO error handling in case connectivity issues
         redis_conn.hset(app.config['CACHE_NAME'], app.config['CACHE_KEY'], json.dumps(self.session_word_tree))
         # clear the local local cache since these have already been processed
@@ -46,17 +48,18 @@ class Frequency:
             self._process_sentence(sentence, short_filename, filter_stop_words)
         return
 
-    def _process_sentence(self, sentence, filename, filter_stop_words):
+    def _process_sentence(self, sentence, filename, filter_stop_words=True):
         """
         Private method that takes a sentence, stores it, breaks sentence into word array, and stores info
         :param str sentence: The sentence to process
         :param str filename: The filename in which the sentence is located
         :param bool filter_stop_words: Filter stop words would remove the most common words, leaving more relevant words
         """
-        # TODO filter stop words here
         sentence_array = split_into_words(sentence)
         for word in sentence_array:
             word = word.lower()
+            if filter_stop_words and word in STOP_WORDS:
+                continue
             if self.word_tree.get_word(word):
                 self.word_tree.increment_count_known_word(word)
                 self.word_tree.add_sentence_known_word(word, sentence)
