@@ -106,7 +106,7 @@ tr:nth-child(odd) td {
 }
 
 .sentenceTableCellWrapper {
-    height: 300px;
+    height: 150px;
     overflow: scroll;
 
 }
