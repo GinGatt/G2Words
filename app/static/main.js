@@ -18,12 +18,12 @@
 
         var fileTableText = '{0}';
         $scope.getFileTableText = function(fileArray){
-          return fileTableText.replace('{0}', fileArray.toString()).replace(/,/g, ", \n");
+          return fileTableText.replace('{0}', fileArray.toString()).replace(/,/g, ", ");
         };
 
         var sentenceTableText = '{0}';
         $scope.getSentenceTableText = function(sentenceArray){
-          return sentenceTableText.replace('{0}', sentenceArray.toString()).replace(/,/g, ", \n\n");
+          return sentenceTableText.replace('{0}', sentenceArray.toString()).replace(/,/g, ", ");
         };
 
         $scope.bold = function(textToSearch, searchTerm) {

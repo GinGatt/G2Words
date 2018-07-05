@@ -5,6 +5,7 @@ identification of dataset, and display of word frequency and location results
 """
 
 import os
+import texttable
 from flask import render_template, flash, request, redirect, jsonify
 from werkzeug.utils import secure_filename
 from app import app
@@ -75,4 +76,21 @@ def get_frequency_and_location():
     frequency_instance = Frequency()
     filter_checked = request.get_json().get('checked')
     my_data = frequency_instance.calculate(app.config['UPLOAD_FOLDER'], filter_checked)[:15]
+    # # TODO remove temp hack to get a txt file to send results
+    # file_word_results_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..', 'Results/results.txt'))
+    # top_words = my_data
+    # results_table = texttable.Texttable()
+    # results_rows = [["Word", "Count", "Documents", "Sentences"]]
+    # build_row = []
+    # for word in top_words:
+    #     build_row.append(word[0])
+    #     build_row.append(word[1]['count'])
+    #     build_row.append(', '.join([str(x) for x in word[1]['files']]))
+    #     build_row.append(', '.join([str(x) for x in word[1]['sentences']]))
+    #     results_rows.append(build_row)
+    #     build_row = []
+    #
+    # results_table.add_rows(results_rows)
+    # with open(file_word_results_path, 'w') as f:
+    #     print(results_table.draw(), file=f)
     return jsonify(my_data)
